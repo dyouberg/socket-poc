@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Seller Console Chat</title>
+    <style>
+      body { font: 13px Helvetica, Arial; }
+
+      #parentContainer { padding: 10px; margin: 10px; } 
+      #messageBox { background-color: azure; border: 1px solid; padding: 5px; width: 600px; height: 200px; overflow-y: auto }
+      
+      .action-div { padding: 5px; }
+      .action-input { border: 1px solid; padding: 10px; width: 200px; margin-right: .5%; }
+
+      .broadcast-message { font-weight: bold; color: red; }
+
+      #broadcastButton {  min-width: 100px; background: rgb(255, 100, 100); border: none; padding: 10px; }
+      #chatButton { min-width: 100px; background: rgb(100, 100, 255); border: none; padding: 10px; }
+
+      #chatMessages { list-style-type: none; margin: 0; padding: 5px; }
+      #chatMessages li { padding: 5px 10px; }
+      #chatMessages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+  <script>
+    $(() => {
+      const socket = io();
+
+      $('#broadcastButton').click(() => {
+        socket.emit('broadcast', $('#broadcastInput').val());
+        $('#broadcastInput').val('');
+        return false;
+      });
+
+      $('#chatButton').click(() => {
+        socket.emit('chat message', $('#chatInput').val());
+        $('#chatInput').val('');
+        return false;
+      });
+
+      socket.on('broadcast', msg => {
+        $('#chatMessages').append($('<li class="broadcast-message">['+new Date().toLocaleTimeString()+'] [BROADCAST] ' + msg + '</li>'));
+      });
+
+      socket.on('chat message', msg => {
+        $("#chatMessages").append('<li>['+new Date().toLocaleTimeString()+'] ' + msg + '</li>');
+      });
+
+    });
+  </script>
+
+  <body>
+
+    <div id="parentContainer">
+      <h1>Seller Console Chat</h1>
+
+      <h3>Messages: </h3>
+      <div id="messageBox">
+        <ul id="chatMessages">
+        </ul>
+      </div>
+
+      <div class="action-div">
+        <input class="action-input" id="chatInput" autocomplete="off" />
+        <button id="chatButton">Send</button>
+      </div>
+
+      <div class="action-div">
+        <input class="action-input" id="broadcastInput" autocomplete="off" />
+        <button id="broadcastButton">Broadcast</button>
+      </div>
+
+    </div>
+
+  </body>
+</html>
